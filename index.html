@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order Engraved Cards</title>
+<meta name="description" content="Design and order laser-engraved two-color acrylic business cards.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&family=Graduate&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#F1F2F5; --surface:#FFFFFF; --ink:#141A2B; --muted:#5B6272; --line:#D6D9E0;
+  --navy:#14213D; --accent:#E8590C; --accent-ink:#FFFFFF; --accent-soft:#FDE8DC; --field:#F7F8FA; --stage:#D9DCE3;
+  --ok:#1C7C4A; --ok-soft:#E1F3E9; --err:#C0392B; --err-soft:#FBE4E1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10131A; --surface:#1A1F2A; --ink:#E8EAF0; --muted:#9AA1B0; --line:#2E3545;
+    --navy:#0B1222; --accent:#FF7A2F; --accent-ink:#1A0E05; --accent-soft:#3A2416; --field:#222836; --stage:#262C3A;
+    --ok:#4CC98A; --ok-soft:#173528; --err:#FF7B6E; --err-soft:#3A1E1C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10131A; --surface:#1A1F2A; --ink:#E8EAF0; --muted:#9AA1B0; --line:#2E3545;
+  --navy:#0B1222; --accent:#FF7A2F; --accent-ink:#1A0E05; --accent-soft:#3A2416; --field:#222836; --stage:#262C3A;
+  --ok:#4CC98A; --ok-soft:#173528; --err:#FF7B6E; --err-soft:#3A1E1C;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Barlow,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom,0px)}
+.top{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 22px) 16px 22px}
+.top-in{max-width:1040px;margin:0 auto}
+.top h1{font:700 clamp(1.6rem,5.5vw,2.4rem)/1.05 "Barlow Semi Condensed",Barlow,sans-serif;margin:0 0 6px;letter-spacing:-.01em}
+.top h1 span{color:#FF8A3D}
+.top p{margin:0;color:#C6CCDA;max-width:60ch}
+.steps{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;padding:0;list-style:none;font-size:.92rem;color:#E4E8F1}
+.steps li{display:flex;align-items:center;gap:8px}
+.steps b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#FF8A3D;color:#1A0E05;font-size:.8rem}
+
+.wrap{max-width:1040px;margin:0 auto;padding:18px 16px 110px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:880px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:start}.side{position:sticky;top:16px}.wrap{padding-bottom:40px}}
+
+.stage{background:var(--stage);border-radius:14px;padding:clamp(14px,4vw,30px)}
+#card{display:block;width:100%;height:auto;filter:drop-shadow(0 8px 14px rgba(0,0,0,.30))}
+.cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:.85rem;color:var(--muted)}
+.warn{margin-top:10px;font-size:.88rem;color:var(--err);background:var(--err-soft);border-radius:8px;padding:8px 10px}
+
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:14px}
+.summary h2{font:700 1.1rem/1.2 "Barlow Semi Condensed",Barlow,sans-serif;margin:0 0 8px}
+.summary table{width:100%;border-collapse:collapse;font-size:.95rem}
+.summary td{padding:4px 0;vertical-align:top}
+.summary td:last-child{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.summary tr.total td{border-top:1px solid var(--line);padding-top:8px;font-weight:700;font-size:1.1rem}
+.summary .fine{color:var(--muted);font-size:.83rem;margin:8px 0 0}
+
+form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 16px 18px}
+fieldset{border:0;border-bottom:1px solid var(--line);margin:0;padding:18px 0;min-width:0}
+fieldset.last{border-bottom:0}
+legend{font:700 1.15rem/1.2 "Barlow Semi Condensed",Barlow,sans-serif;padding:0;margin-bottom:10px;float:left;width:100%;display:flex;align-items:center;gap:10px}
+legend .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:.8rem;flex:none}
+legend+*{clear:both}
+.hint{color:var(--muted);font-size:.88rem;margin:-2px 0 10px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;min-width:0}
+.f>span{font-size:.85rem;color:var(--muted);font-weight:500}
+.f>span em{font-style:normal;color:var(--accent)}
+.row{display:grid;grid-template-columns:5.5rem 1fr;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 4.5rem 6rem;gap:10px}
+@media (max-width:420px){.row3{grid-template-columns:1fr 1fr}.row3 .f:first-child{grid-column:1/-1}}
+input[type=text],input[type=email],input[type=url],input[type=tel],textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px 11px;width:100%;min-width:0}
+textarea{min-height:80px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;margin:0;flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.check span{line-height:1.3}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--field);font-weight:500;font-size:.95rem;cursor:pointer}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+
+.file{position:relative;display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:10px;padding:12px;background:var(--field);cursor:pointer}
+.file input{position:absolute;width:1px;height:1px;opacity:0}
+.file small{display:block;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;padding:0;cursor:pointer}
+
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px}
+.sw{position:relative;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--field);cursor:pointer}
+.sw input{position:absolute;opacity:0;pointer-events:none}
+.sw:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.sw:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.chip{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 .82rem "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;border:1px solid rgba(0,0,0,.12)}
+.sw b{font-size:.88rem;font-weight:600;line-height:1.15}
+.sw small{color:var(--muted);font-size:.78rem;line-height:1.2}
+
+.tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (min-width:520px){.tiers{grid-template-columns:repeat(4,1fr)}}
+.tier{position:relative;border:1px solid var(--line);border-radius:10px;padding:10px 10px 9px;background:var(--field);cursor:pointer;text-align:center}
+.tier input{position:absolute;opacity:0;pointer-events:none}
+.tier:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.tier:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.tier .q{display:block;font:700 1.35rem/1 "Barlow Semi Condensed",sans-serif}
+.tier .ql{display:block;font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.tier .p{display:block;font-weight:700;font-variant-numeric:tabular-nums}
+.tier .pc{display:block;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.addr[hidden]{display:none}
+button.primary{width:100%;font:700 1.08rem Barlow,sans-serif;border-radius:10px;padding:15px 18px;cursor:pointer;border:0;background:var(--accent);color:var(--accent-ink)}
+button.primary[disabled]{opacity:.6;cursor:progress}
+.status{min-height:1.3em;margin-top:8px;font-size:.92rem}
+.status.err{color:var(--err)}
+.honey{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+[hidden]{display:none!important}
+
+.done{background:var(--ok-soft);border:1px solid var(--ok);color:var(--ink);border-radius:14px;padding:18px;margin-bottom:16px}
+.done h2{margin:0 0 6px;font:700 1.3rem "Barlow Semi Condensed",sans-serif;color:var(--ok)}
+.done p{margin:0 0 6px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:5}
+.bar .t{font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.bar .s{display:block;font-size:.8rem;color:var(--muted);font-weight:500}
+.bar a{background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:700;border-radius:999px;padding:10px 16px;white-space:nowrap}
+@media (min-width:880px){.bar{display:none}}
+footer{color:var(--muted);font-size:.82rem;text-align:center;margin-top:22px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <h1>Laser-engraved <span>business cards</span></h1>
+    <p id="tagline">Two-color acrylic, 1/16" thick, engraved and cut in Miami.</p>
+    <ol class="steps">
+      <li><b>1</b>Design your card</li>
+      <li><b>2</b>Get a proof by email</li>
+      <li><b>3</b>Approve, pay, and pick up or get it shipped</li>
+    </ol>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="done" id="done" hidden role="status">
+    <h2>Order request sent</h2>
+    <p>Thanks! Your design and details went straight to me. I'll email you a proof and an invoice, usually within one business day. Nothing has been charged.</p>
+    <button type="button" class="linkbtn" id="again">Start another order</button>
+  </div>
+
+  <div class="grid">
+    <aside class="side">
+      <div class="stage"><svg id="card" viewBox="0 0 88.9 50.8" role="img" aria-label="Business card preview"></svg></div>
+      <div class="cap"><span id="capColor"></span><span>3.5 × 2 in · 1/16" acrylic</span></div>
+      <div class="warn" id="warn" hidden></div>
+
+      <div class="summary" id="summary">
+        <h2>Your order</h2>
+        <table>
+          <tbody>
+            <tr><td id="sCards"></td><td id="sCardsP"></td></tr>
+            <tr id="sHelpRow" hidden><td>Design help / logo cleanup</td><td id="sHelpP"></td></tr>
+            <tr><td id="sShip"></td><td id="sShipP"></td></tr>
+            <tr class="total"><td>Total</td><td id="sTotal"></td></tr>
+          </tbody>
+        </table>
+        <p class="fine" id="leadNote"></p>
+      </div>
+    </aside>
+
+    <form id="form" method="POST" enctype="multipart/form-data" novalidate>
+      <!-- FormSubmit control fields (set at submit time) -->
+      <input type="hidden" name="_subject" id="fSubject">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" id="fNext">
+      <input type="hidden" name="_replyto" id="fReplyTo">
+      <input type="hidden" name="_autoresponse" id="fAuto">
+      <div class="honey" aria-hidden="true"><label>Leave empty <input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></div>
+      <!-- Computed order fields -->
+      <input type="hidden" name="Order ID" id="fOrderId">
+      <input type="hidden" name="Color setup" id="fColor">
+      <input type="hidden" name="Quantity" id="fQty">
+      <input type="hidden" name="Price per card" id="fPer">
+      <input type="hidden" name="Cards subtotal" id="fSub">
+      <input type="hidden" name="Design help" id="fHelp">
+      <input type="hidden" name="Delivery" id="fDelivery">
+      <input type="hidden" name="Shipping charge" id="fShipP">
+      <input type="hidden" name="Order total" id="fTotal">
+      <input type="hidden" name="QR code content" id="fQr">
+      <input type="file" name="attachment" id="fProd" hidden>
+
+      <fieldset>
+        <legend><span class="n">1</span>What goes on the card</legend>
+        <label class="f"><span>Name <em>*</em></span><input type="text" id="name" name="Card - name" maxlength="40" autocomplete="name" required></label>
+        <label class="f"><span>Title</span><input type="text" id="title1" name="Card - title" maxlength="48" autocomplete="organization-title"></label>
+        <label class="f"><span>Company or department</span><input type="text" id="title2" name="Card - company" maxlength="48" autocomplete="organization"></label>
+        <div class="row">
+          <label class="f"><span>Label</span><input type="text" id="phoneLabel" name="Card - phone label" value="cell" maxlength="8" autocomplete="off"></label>
+          <label class="f"><span>Phone</span><input type="tel" id="phone" name="Card - phone" maxlength="24" autocomplete="tel"></label>
+        </div>
+        <label class="f"><span>Email</span><input type="email" id="email" name="Card - email" maxlength="48" autocomplete="email"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">2</span>Logo</legend>
+        <p class="hint">Upload your logo and it gets engraved in the second color. Simple, high-contrast logos look best.</p>
+        <label class="file">
+          <input type="file" id="logoFile" name="Original logo" accept="image/png,image/jpeg,image/webp,image/gif">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+          <span><strong id="fileName">Upload a logo</strong><small>PNG, JPG or WebP, up to 5 MB</small></span>
+        </label>
+        <div id="logoTools" hidden>
+          <label class="f" style="margin-top:12px"><span>Detail level: <b id="thVal">128</b></span><input type="range" id="threshold" min="20" max="235" value="128"></label>
+          <label class="check"><input type="checkbox" id="invertLogo"><span>Engrave the light parts of my logo instead</span></label>
+          <button type="button" class="linkbtn" id="removeLogo">Remove logo</button>
+        </div>
+        <div id="logoTextWrap">
+          <label class="f" style="margin-top:12px"><span>No logo? Use initials instead</span><input type="text" id="logoText" name="Card - initials" maxlength="6" autocomplete="off"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">3</span>QR code</legend>
+        <div class="seg" role="radiogroup" aria-label="QR code content">
+          <label><input type="radio" name="QR code" value="Link" checked> Link</label>
+          <label><input type="radio" name="QR code" value="My contact"> My contact</label>
+          <label><input type="radio" name="QR code" value="None"> None</label>
+        </div>
+        <label class="f" id="qrUrlWrap" style="margin-top:12px"><span>Link (website, LinkedIn, Linktree…)</span><input type="url" id="qrUrl" maxlength="200" placeholder="https://" autocomplete="url"></label>
+        <p class="hint" id="qrContactHint" hidden style="margin-top:10px">Scanning saves your name, title, phone and email straight to their contacts.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">4</span>Color</legend>
+        <p class="hint">The first color is the card's surface. The second is what shows where it's engraved.</p>
+        <div class="swatches" id="swatches" role="radiogroup" aria-label="Card color"></div>
+        <label class="check" style="margin-top:12px"><input type="checkbox" id="round" name="Rounded corners" value="Yes" checked><span>Rounded corners</span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">5</span>How many</legend>
+        <div class="tiers" id="tiers" role="radiogroup" aria-label="Quantity"></div>
+        <label class="check" style="margin-top:12px"><input type="checkbox" id="help"><span>Add design help and logo cleanup (<b id="helpPrice"></b>). I'll redraw a blurry logo or tweak the layout before your proof.</span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">6</span>Pickup or shipping</legend>
+        <div class="seg" role="radiogroup" aria-label="Delivery">
+          <label><input type="radio" name="deliveryMode" value="pickup" checked> <span id="pickupLabel">Local pickup, free</span></label>
+          <label><input type="radio" name="deliveryMode" value="ship"> Ship it, <span id="shipLabel"></span></label>
+        </div>
+        <div class="addr" id="addr" hidden style="margin-top:12px">
+          <label class="f"><span>Street address <em>*</em></span><input type="text" id="a1" name="Ship - address" autocomplete="address-line1"></label>
+          <label class="f"><span>Apt, suite (optional)</span><input type="text" name="Ship - address 2" autocomplete="address-line2"></label>
+          <div class="row3">
+            <label class="f"><span>City <em>*</em></span><input type="text" id="aCity" name="Ship - city" autocomplete="address-level2"></label>
+            <label class="f"><span>State <em>*</em></span><input type="text" id="aState" name="Ship - state" maxlength="2" autocomplete="address-level1"></label>
+            <label class="f"><span>ZIP <em>*</em></span><input type="text" id="aZip" name="Ship - ZIP" inputmode="numeric" maxlength="10" autocomplete="postal-code"></label>
+          </div>
+          <p class="hint" style="margin:0">USPS Ground Advantage with tracking, US addresses only.</p>
+        </div>
+      </fieldset>
+
+      <fieldset class="last">
+        <legend><span class="n">7</span>Your contact info</legend>
+        <p class="hint">This is where your proof and invoice go.</p>
+        <div class="row2">
+          <label class="f"><span>Your name <em>*</em></span><input type="text" id="cName" name="Customer name" autocomplete="name" required></label>
+          <label class="f"><span>Phone</span><input type="tel" id="cPhone" name="Customer phone" autocomplete="tel"></label>
+        </div>
+        <label class="f"><span>Email <em>*</em></span><input type="email" id="cEmail" name="email" autocomplete="email" required></label>
+        <label class="f"><span>Anything else I should know?</span><textarea name="Notes" maxlength="1000" placeholder="Deadline, a different font, a second line of text…"></textarea></label>
+        <label class="check"><input type="checkbox" id="agree" required><span>I understand this is an order request. I'll get a proof and invoice by email, and production starts once I approve and pay.</span></label>
+        <button type="submit" class="primary" id="submitBtn">Send order request</button>
+        <div class="status" id="status" role="status"></div>
+      </fieldset>
+    </form>
+  </div>
+  <footer id="foot"></footer>
+</div>
+
+<div class="bar" id="bar"><span><span class="t" id="barTotal"></span><span class="s" id="barSub"></span></span><a href="#cName">Finish order</a></div>
+
+<script>
+/* =====================================================================
+   SHOP SETTINGS: edit these to change prices, colors, or where orders go
+   ===================================================================== */
+const CONFIG = {
+  // Orders are emailed here by FormSubmit (formsubmit.co). After you confirm the
+  // activation email, you can swap this for the random alias FormSubmit gives you
+  // so your address isn't visible in the page source.
+  orderEmail: "samuelconde001@gmail.com",
+  maker: "Samuel Conde",
+  pickupWhere: "Miami",
+  leadTime: "Ready 5–7 business days after you approve the proof.",
+  // Quantity tiers: total price for the cards (shipping extra)
+  tiers: [
+    {qty: 25,  price: 99},
+    {qty: 50,  price: 169},
+    {qty: 100, price: 299},
+    {qty: 250, price: 649}
+  ],
+  // Flat USPS Ground Advantage charge by quantity (covers zone 8 + mailer)
+  shipping: {25: 10, 50: 14, 100: 18, 250: 28},
+  designHelp: 20,
+  maxUploadMB: 5,
+  // TroLase 1/16" 2-ply colors (surface / engraved core) sold in 12"x24" 4-packs.
+  // Remove any you don't want to stock. Hex values are on-screen approximations.
+  colors: [
+    {id:"navy-gold",     name:"Navy Blue / Gold",      cap:"#1E2A4A", core:"#D2AE5A"},
+    {id:"black-white",   name:"Black / White",         cap:"#15171A", core:"#F3F3F1"},
+    {id:"black-gold",    name:"Black / Gold",          cap:"#15171A", core:"#D2AE5A"},
+    {id:"black-silver",  name:"Black / Silver",        cap:"#15171A", core:"#C3C7CC"},
+    {id:"orange-black",  name:"Orange / Black",        cap:"#F06A1D", core:"#15171A"},
+    {id:"orange-white",  name:"Orange / White",        cap:"#F06A1D", core:"#F3F3F1"},
+    {id:"sapphire-white",name:"Sapphire / White",      cap:"#1D3F8F", core:"#F3F3F1"},
+    {id:"blue-white",    name:"Blue / White",          cap:"#1F62B0", core:"#F3F3F1"},
+    {id:"red-white",     name:"Red / White",           cap:"#C4182F", core:"#F3F3F1"},
+    {id:"burgundy-white",name:"Burgundy / White",      cap:"#6B1C2C", core:"#F3F3F1"},
+    {id:"evergreen-white",name:"Evergreen / White",    cap:"#1F4E3B", core:"#F3F3F1"},
+    {id:"smoke-white",   name:"Smoke Grey / White",    cap:"#6C7178", core:"#F3F3F1"},
+    {id:"carbon-white",  name:"Carbon / White",        cap:"#2C2D30", core:"#F3F3F1"},
+    {id:"white-black",   name:"White / Black",         cap:"#F3F3F1", core:"#15171A"},
+    {id:"walnut-white",  name:"English Walnut / White",cap:"#5A3A26", core:"#F3F3F1"},
+    {id:"maple-black",   name:"Maple / Black",         cap:"#DDBF8E", core:"#15171A"}
+  ]
+};
+/* ===================================================================== */
+
+(function(){
+const W=88.9,H=50.8;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"$"+(Math.round(n*100)/100).toFixed(n%1?2:0);
+const val=id=>$(id).value.trim();
+let logoImg=null,logo=null,logoFile=null,fits={};
+
+/* ---------- build choices ---------- */
+const lum=hex=>{const n=parseInt(hex.slice(1),16);return .299*(n>>16)+.587*(n>>8&255)+.114*(n&255);};
+$("swatches").innerHTML=CONFIG.colors.map((c,i)=>{
+  const [a,b]=c.name.split(" / ");
+  return `<label class="sw"><input type="radio" name="colorChoice" value="${c.id}"${i===0?" checked":""}>
+    <span class="chip" style="background:${c.cap};color:${c.core}">ABC</span>
+    <b>${esc(a)}</b><small>engraves ${esc(b.toLowerCase())}</small></label>`;}).join("");
+$("tiers").innerHTML=CONFIG.tiers.map((t,i)=>
+  `<label class="tier"><input type="radio" name="tierChoice" value="${t.qty}"${i===1?" checked":""}>
+    <span class="q">${t.qty}</span><span class="ql">cards</span>
+    <span class="p">${money(t.price)}</span><span class="pc">${money(t.price/t.qty)} each</span></label>`).join("");
+$("helpPrice").textContent="+"+money(CONFIG.designHelp);
+$("pickupLabel").textContent=`Local pickup in ${CONFIG.pickupWhere}, free`;
+$("leadNote").textContent=CONFIG.leadTime+" Nothing is charged until then.";
+$("foot").textContent=`Made by ${CONFIG.maker} · Orders are confirmed by email before anything is charged.`;
+$("form").action="https://formsubmit.co/"+CONFIG.orderEmail;
+
+/* ---------- state helpers ---------- */
+const color=()=>CONFIG.colors.find(c=>c.id===document.querySelector("input[name=colorChoice]:checked").value);
+const tier=()=>CONFIG.tiers.find(t=>t.qty===+document.querySelector("input[name=tierChoice]:checked").value);
+const qrMode=()=>document.querySelector("input[name='QR code']:checked").value;
+const shipping=()=>document.querySelector("input[name=deliveryMode]:checked").value==="ship";
+
+function totals(){
+  const t=tier(),help=$("help").checked?CONFIG.designHelp:0,ship=shipping()?CONFIG.shipping[t.qty]:0;
+  return {t,help,ship,total:t.price+help+ship};
+}
+
+/* ---------- logo vectorizer ---------- */
+function vectorize(img,threshold,invert){
+  const s=Math.min(420/img.width,200/img.height,1);
+  const w=Math.max(1,Math.round(img.width*s)),h=Math.max(1,Math.round(img.height*s));
+  const c=document.createElement("canvas");c.width=w;c.height=h;
+  const x=c.getContext("2d");x.drawImage(img,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data;
+  let p="",minX=w,minY=h,maxX=0,maxY=0;
+  for(let y=0;y<h;y++){let run=-1;
+    for(let i=0;i<=w;i++){let dark=false;
+      if(i<w){const k=(y*w+i)*4,a=d[k+3]/255;
+        const L=.299*d[k]+.587*d[k+1]+.114*d[k+2],l=255-(255-L)*a;
+        dark=invert?(a>.5&&l>=threshold):(l<threshold);}
+      if(dark&&run<0)run=i;
+      if(!dark&&run>=0){p+=`M${run} ${y}h${i-run}v1h${run-i}z`;
+        minX=Math.min(minX,run);maxX=Math.max(maxX,i);minY=Math.min(minY,y);maxY=Math.max(maxY,y+1);run=-1;}
+    }}
+  if(!p)return null;
+  return {d:p,x:minX,y:minY,w:maxX-minX,h:maxY-minY};
+}
+
+/* ---------- QR ---------- */
+function makeQR(text,invert){
+  if(typeof qrcode==="undefined")return {missing:true};
+  if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
+  let q;try{q=qrcode(0,"M");q.addData(text);q.make();}catch(e){return {error:true};}
+  const n=q.getModuleCount();
+  let p=invert?`M-1 -1h${n+2}v${n+2}h${-(n+2)}z`:"";
+  for(let r=0;r<n;r++){let run=-1;
+    for(let c=0;c<=n;c++){const dk=c<n&&q.isDark(r,c);
+      if(dk&&run<0)run=c;
+      if(!dk&&run>=0){p+=`M${run} ${r}h${c-run}v1h${run-c}z`;run=-1;}}}
+  return {d:p,n};
+}
+function qrText(){
+  const m=qrMode();
+  if(m==="None")return "";
+  if(m==="Link")return val("qrUrl");
+  const L=["BEGIN:VCARD","VERSION:3.0",`FN:${val("name")}`];
+  if(val("title1"))L.push(`TITLE:${val("title1")}`);
+  if(val("title2"))L.push(`ORG:${val("title2")}`);
+  if(val("phone"))L.push(`TEL:${val("phone")}`);
+  if(val("email"))L.push(`EMAIL:${val("email")}`);
+  L.push("END:VCARD");return L.join("\n");
+}
+
+/* ---------- card SVG ---------- */
+const fitAttr=id=>fits[id]?` textLength="${fits[id]}" lengthAdjust="spacingAndGlyphs"`:"";
+function buildSVG(forExport){
+  const col=color();
+  const r=$("round").checked?3:0;
+  const E=forExport?"#000000":col.core;
+  const F1="Barlow, Arial, sans-serif",F2="'Barlow Semi Condensed', 'Arial Narrow', sans-serif";
+  const out=[],g=[];
+  const txt=(id,x,y,size,weight,fam,content,max)=>
+    `<text id="${id}" data-max="${max}" x="${x}" y="${y}" font-family="${fam}" font-size="${size}" font-weight="${weight}" fill="${E}"${forExport?fitAttr(id):""}>${content}</text>`;
+  if(!forExport)out.push(`<rect width="${W}" height="${H}" rx="${r}" fill="${col.cap}"/>`);
+
+  const nm=val("name")||(forExport?"":"YOUR NAME");
+  if(nm)g.push(txt("tName",4,19.6,5.4,700,F1,esc(nm.toUpperCase()),80.9));
+  g.push(`<rect x="4" y="21.3" width="80.9" height=".7" fill="${E}"/>`);
+  const t1=val("title1")||(forExport?"":"Your title");
+  if(t1)g.push(txt("tT1",4,25.9,3.2,500,F2,esc(t1.toUpperCase()),56));
+  if(val("title2"))g.push(txt("tT2",4,29.5,3.2,500,F2,esc(val("title2").toUpperCase()),56));
+  g.push(`<rect x="4" y="31.6" width="55.5" height=".35" fill="${E}"/>`);
+  const ph=val("phone")||(forExport?"":"305.555.0100");
+  if(ph){const lab=val("phoneLabel")?`<tspan font-weight="700">${esc(val("phoneLabel"))}</tspan> `:"";
+    g.push(txt("tPh",4,37,2.9,500,F1,lab+esc(ph),55.5));}
+  const em=val("email")||(forExport?"":"you@example.com");
+  if(em)g.push(txt("tEm",4,41,2.9,500,F1,esc(em),55.5));
+
+  const LX=60,LY=4,LW=24.9,LH=11.5;
+  if(logo){
+    const s=Math.min(LW/logo.w,LH/logo.h);
+    const tx=LX+LW-logo.w*s-logo.x*s,ty=LY+(LH-logo.h*s)/2-logo.y*s;
+    g.push(`<path transform="translate(${tx.toFixed(3)} ${ty.toFixed(3)}) scale(${s.toFixed(5)})" d="${logo.d}" fill="${E}" shape-rendering="crispEdges"/>`);
+  }else if(val("logoText")){
+    g.push(`<text id="tLogo" data-max="${LW}" x="${LX+LW}" y="${LY+LH-1}" text-anchor="end" font-family="Graduate, 'Arial Black', sans-serif" font-size="11" fill="none" stroke="${E}" stroke-width=".42" stroke-linejoin="round"${forExport?fitAttr("tLogo"):""}>${esc(val("logoText").toUpperCase())}</text>`);
+  }
+
+  // QR: phones read dark-on-light best, so when the surface is darker than the
+  // engraved color we engrave the background and leave the modules as surface.
+  let qrInfo=null;const qt=qrText();
+  if(qt){
+    const inv=lum(col.cap)<lum(col.core);
+    const q=makeQR(qt,inv);
+    if(q.error)qrInfo={error:true};
+    else if(q.missing)qrInfo={missing:true};
+    else{
+      const S=19.5,QX=65.4,QY=27.5,mod=S/(q.n+2);
+      qrInfo={mod};
+      g.push(`<path transform="translate(${(QX+mod).toFixed(3)} ${(QY+mod).toFixed(3)}) scale(${mod.toFixed(5)})" d="${q.d}" fill="${E}" fill-rule="evenodd" shape-rendering="crispEdges"/>`);
+    }
+  }
+
+  if(forExport){
+    const t=tier();
+    out.push(`<g id="engrave">${g.join("")}</g>`);
+    out.push(`<g id="cut"><rect x="0" y="0" width="${W}" height="${H}" rx="${r}" fill="none" stroke="#FF0000" stroke-width="0.1"/></g>`);
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<!-- ${esc(col.name)} TroLase 1/16" · ${t.qty} cards · Black = engrave, red hairline = cut. Convert text to paths before cutting. -->\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">${out.join("")}</svg>`;
+  }
+  out.push(g.join(""));
+  out.push(`<rect x=".08" y=".08" width="${W-.16}" height="${H-.16}" rx="${Math.max(0,r-.08)}" fill="none" stroke="#FF3B42" stroke-opacity=".55" stroke-width=".16" stroke-dasharray="1 .7"/>`);
+  return {body:out.join(""),qrInfo};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const {body,qrInfo}=buildSVG(false);
+  const svg=$("card");svg.innerHTML=body;
+  fits={};
+  svg.querySelectorAll("text[data-max]").forEach(t=>{
+    const max=+t.dataset.max;let len=0;try{len=t.getComputedTextLength();}catch(e){}
+    if(len>max){fits[t.id]=max;t.setAttribute("textLength",max);t.setAttribute("lengthAdjust","spacingAndGlyphs");}
+  });
+  const msgs=[];
+  if(qrInfo&&qrInfo.missing)msgs.push("The QR preview couldn't load. Your QR content will still be sent with the order.");
+  else if(qrInfo&&qrInfo.error)msgs.push("That QR content is too long to encode. Try a shorter link.");
+  else if(qrInfo&&qrInfo.mod<0.45)msgs.push(`The QR code is getting dense (${qrInfo.mod.toFixed(2)} mm squares) and may not scan well once engraved. A shorter link helps.`);
+  $("warn").hidden=!msgs.length;$("warn").textContent=msgs.join(" ");
+  $("logoTextWrap").hidden=!!logo;
+  const m=qrMode();$("qrUrlWrap").hidden=m!=="Link";$("qrContactHint").hidden=m!=="My contact";
+  $("addr").hidden=!shipping();
+  $("capColor").textContent=color().name;
+
+  const {t,help,ship,total}=totals();
+  $("sCards").textContent=`${t.qty} cards · ${money(t.price/t.qty)} each`;
+  $("sCardsP").textContent=money(t.price);
+  $("sHelpRow").hidden=!help;$("sHelpP").textContent=money(help);
+  $("sShip").textContent=shipping()?"USPS Ground Advantage":`Pickup in ${CONFIG.pickupWhere}`;
+  $("sShipP").textContent=ship?money(ship):"Free";
+  $("sTotal").textContent=money(total);
+  $("shipLabel").textContent=money(CONFIG.shipping[t.qty]);
+  $("barTotal").textContent=money(total);
+  $("barSub").textContent=`${t.qty} cards · ${color().name}`;
+}
+
+/* ---------- inputs ---------- */
+const relogo=()=>{logo=logoImg?vectorize(logoImg,+$("threshold").value,$("invertLogo").checked):null;};
+const setStatus=(t,err)=>{const s=$("status");s.textContent=t;s.className="status"+(err?" err":"");};
+let cNameTouched=false,cEmailTouched=false;
+$("cName").addEventListener("input",()=>cNameTouched=true);
+$("cEmail").addEventListener("input",()=>cEmailTouched=true);
+
+$("form").addEventListener("input",e=>{
+  const t=e.target;
+  if(t.id==="threshold"){$("thVal").textContent=t.value;relogo();}
+  if(t.id==="invertLogo")relogo();
+  if(t.id==="name"&&!cNameTouched)$("cName").value=t.value;
+  if(t.id==="email"&&!cEmailTouched)$("cEmail").value=t.value;
+  setStatus("");render();
+});
+$("form").addEventListener("change",render);
+
+$("logoFile").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>CONFIG.maxUploadMB*1048576){
+    setStatus(`That logo is over ${CONFIG.maxUploadMB} MB. Please upload a smaller image.`,true);
+    e.target.value="";return;
+  }
+  const img=new Image();
+  img.onload=()=>{logoImg=img;logoFile=f;relogo();
+    setStatus(logo?"":"Couldn't find any dark shapes. Try the detail slider, or engrave the light parts instead.",!logo);
+    $("fileName").textContent=f.name;$("logoTools").hidden=false;render();};
+  img.onerror=()=>{setStatus("That file couldn't be read as an image. Try a PNG or JPG.",true);e.target.value="";};
+  img.src=URL.createObjectURL(f);
+});
+$("removeLogo").addEventListener("click",()=>{
+  logoImg=null;logo=null;logoFile=null;$("logoFile").value="";$("fileName").textContent="Upload a logo";$("logoTools").hidden=true;setStatus("");render();
+});
+
+/* ---------- submit ---------- */
+function bad(el,msg){setStatus(msg,true);el.focus();el.scrollIntoView({block:"center",behavior:"smooth"});return false;}
+function validate(){
+  if(!val("name"))return bad($("name"),"Add the name that goes on the card.");
+  if(qrMode()==="Link"&&!/^https?:\/\/\S+\.\S+/i.test(val("qrUrl")))return bad($("qrUrl"),"Add the full link for your QR code, starting with https://, or pick another QR option.");
+  if(qrMode()!=="None"){const q=makeQR(qrText(),false);if(q.error)return bad($("qrUrl"),"That QR content is too long. Try a shorter link.");}
+  if(shipping()){
+    for(const id of ["a1","aCity","aState","aZip"])if(!val(id))return bad($(id),"Add your full shipping address, or switch to local pickup.");
+  }
+  if(!val("cName"))return bad($("cName"),"Add your name so I know who the order is for.");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val("cEmail")))return bad($("cEmail"),"Add a valid email so I can send your proof.");
+  if(!$("agree").checked)return bad($("agree"),"Please check the box to confirm you'll get a proof before paying.");
+  return true;
+}
+
+$("form").addEventListener("submit",e=>{
+  if(!validate()){e.preventDefault();return;}
+  const col=color(),{t,help,ship,total}=totals();
+  const id="BC-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.random().toString(36).slice(2,6).toUpperCase();
+  $("fOrderId").value=id;
+  $("fColor").value=col.name+' (TroLase 1/16" 2-ply)';
+  $("fQty").value=t.qty;
+  $("fPer").value=money(t.price/t.qty);
+  $("fSub").value=money(t.price);
+  $("fHelp").value=help?money(help):"No";
+  $("fDelivery").value=shipping()?"Ship (USPS Ground Advantage)":`Local pickup (${CONFIG.pickupWhere})`;
+  $("fShipP").value=ship?money(ship):"$0";
+  $("fTotal").value=money(total);
+  $("fQr").value=qrMode()==="None"?"None":qrText();
+  $("fSubject").value=`New card order ${id}: ${val("cName")} · ${t.qty} × ${col.name} · ${money(total)}`;
+  $("fReplyTo").value=val("cEmail");
+  $("fNext").value=location.href.split(/[?#]/)[0]+"?ordered=1";
+  $("fAuto").value=`Thanks for your order request (${id})! Here's a copy of what you sent. I'll email you a proof and invoice soon. Nothing has been charged yet. - ${CONFIG.maker}`;
+
+  // Attach the production-ready SVG (engrave + cut layers) so it can go straight to the laser.
+  try{
+    const slug=(val("name")||"card").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"card";
+    const dt=new DataTransfer();
+    dt.items.add(new File([buildSVG(true)],`${id}-${slug}-production.svg`,{type:"image/svg+xml"}));
+    $("fProd").files=dt.files;
+  }catch(err){/* older browsers: the order still sends without the SVG */}
+
+  $("submitBtn").disabled=true;
+  setStatus("Sending your order…");
+  // Let the browser post the form normally (needed for file attachments).
+});
+
+$("again").addEventListener("click",()=>{history.replaceState(null,"",location.pathname);$("done").hidden=true;window.scrollTo({top:0,behavior:"smooth"});});
+if(new URLSearchParams(location.search).get("ordered")==="1"){$("done").hidden=false;}
+window.addEventListener("pageshow",()=>{$("submitBtn").disabled=false;});
+
+render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+})();
+</script>
+</body>
+</html>
