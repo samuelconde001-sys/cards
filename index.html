@@ -95,8 +95,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;hei
 .sw b{font-size:.88rem;font-weight:600;line-height:1.15}
 .sw small{color:var(--muted);font-size:.78rem;line-height:1.2}
 
-.tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-@media (min-width:520px){.tiers{grid-template-columns:repeat(4,1fr)}}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .tier{position:relative;border:1px solid var(--line);border-radius:10px;padding:10px 10px 9px;background:var(--field);cursor:pointer;text-align:center}
 .tier input{position:absolute;opacity:0;pointer-events:none}
 .tier:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
@@ -237,6 +236,7 @@ footer{color:var(--muted);font-size:.82rem;text-align:center;margin-top:22px}
 
       <fieldset>
         <legend><span class="n">5</span>How many</legend>
+        <p class="hint">Minimum order is 50 cards.</p>
         <div class="tiers" id="tiers" role="radiogroup" aria-label="Quantity"></div>
         <label class="check" style="margin-top:12px"><input type="checkbox" id="help"><span>Add design help and logo cleanup (<b id="helpPrice"></b>). I'll redraw a blurry logo or tweak the layout before your proof.</span></label>
       </fieldset>
@@ -293,13 +293,12 @@ const CONFIG = {
   leadTime: "Ready 5–7 business days after you approve the proof.",
   // Quantity tiers: total price for the cards (shipping extra)
   tiers: [
-    {qty: 25,  price: 99},
     {qty: 50,  price: 169},
     {qty: 100, price: 299},
     {qty: 250, price: 649}
   ],
   // Flat USPS Ground Advantage charge by quantity (covers zone 8 + mailer)
-  shipping: {25: 10, 50: 14, 100: 18, 250: 28},
+  shipping: {50: 14, 100: 18, 250: 28},
   designHelp: 20,
   maxUploadMB: 5,
   // TroLase 1/16" 2-ply colors (surface / engraved core) sold in 12"x24" 4-packs.
@@ -341,7 +340,7 @@ $("swatches").innerHTML=CONFIG.colors.map((c,i)=>{
     <span class="chip" style="background:${c.cap};color:${c.core}">ABC</span>
     <b>${esc(a)}</b><small>engraves ${esc(b.toLowerCase())}</small></label>`;}).join("");
 $("tiers").innerHTML=CONFIG.tiers.map((t,i)=>
-  `<label class="tier"><input type="radio" name="tierChoice" value="${t.qty}"${i===1?" checked":""}>
+  `<label class="tier"><input type="radio" name="tierChoice" value="${t.qty}"${i===0?" checked":""}>
     <span class="q">${t.qty}</span><span class="ql">cards</span>
     <span class="p">${money(t.price)}</span><span class="pc">${money(t.price/t.qty)} each</span></label>`).join("");
 $("helpPrice").textContent="+"+money(CONFIG.designHelp);
