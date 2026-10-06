@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&family=Graduate&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#EEF0F2; --surface:#FFFFFF; --ink:#1D2127; --muted:#5E6670; --line:#D3D8DD;
+  --accent:#D7262E; --accent-soft:#FBE3E4; --field:#F6F7F8; --stage:#C9CED4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181C; --surface:#1F2328; --ink:#E9ECEF; --muted:#9AA3AD; --line:#343A41;
+    --accent:#FF5A5F; --accent-soft:#3A1F22; --field:#272C32; --stage:#2C3136;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Barlow,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 40px}
+h1{font:700 clamp(1.5rem,5vw,2.1rem)/1.1 "Barlow Semi Condensed",Barlow,sans-serif;margin:0 0 4px;letter-spacing:-.01em}
+.sub{margin:0 0 14px;color:var(--muted)}
+.sub a{color:var(--accent);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:860px){.grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}.stage-col{position:sticky;top:16px}}
+
+.stage{background:var(--stage);border-radius:14px;padding:clamp(14px,4vw,32px)}
+#card{display:block;width:100%;height:auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.28))}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.warn{margin-top:10px;font-size:.88rem;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:8px 10px}
+.warn[hidden]{display:none}
+
+.export{margin-top:12px}
+button.primary{width:100%;font:600 1.05rem Barlow,sans-serif;border-radius:10px;padding:14px 18px;cursor:pointer;border:0;background:var(--accent);color:#fff}
+button.primary:focus-visible,input:focus-visible,.file:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.note{color:var(--muted);font-size:.85rem;margin:8px 0 0}
+.status{min-height:1.3em;margin-top:6px;font-size:.9rem}
+.status.err{color:var(--accent)}
+
+form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 16px 16px}
+fieldset{border:0;border-bottom:1px solid var(--line);margin:0;padding:16px 0}
+fieldset:last-child{border-bottom:0;padding-bottom:0}
+legend{font:700 1.1rem/1.2 "Barlow Semi Condensed",Barlow,sans-serif;padding:0;margin-bottom:10px;float:left;width:100%}
+legend+*{clear:both}
+.hint{color:var(--muted);font-size:.88rem;margin:-4px 0 10px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;min-width:0}
+.f>span{font-size:.85rem;color:var(--muted);font-weight:500}
+.row{display:grid;grid-template-columns:5.5rem 1fr;gap:10px}
+input[type=text],input[type=email],input[type=url],input[type=tel]{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px 11px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;margin:0}
+.check{display:flex;gap:8px;align-items:center;margin:6px 0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--field);font-weight:500;font-size:.95rem;cursor:pointer}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.file{position:relative;display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:10px;padding:12px;background:var(--field);cursor:pointer}
+.file input{position:absolute;width:1px;height:1px;opacity:0}
+.file small{display:block;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;padding:0;cursor:pointer}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Card maker</h1>
+  <p class="sub">Design a 3.5 × 2 in card and download a laser-ready SVG. Want it engraved in two-color acrylic? <a href="./">Order cards here</a>.</p>
+  <div class="grid">
+    <div class="stage-col">
+      <div class="stage"><svg id="card" viewBox="0 0 88.9 50.8" role="img" aria-label="Business card preview"></svg></div>
+      <div class="legend"><span><i style="background:#111418"></i>Black = engrave</span><span><i style="background:#FF3B42"></i>Red = cut line</span><span>3.5 × 2 in</span></div>
+      <div class="warn" id="warn" hidden></div>
+      <div class="export">
+        <button type="button" class="primary" id="exportBtn">Download SVG</button>
+        <p class="note">Black engrave layer, red cut line, true size. Convert text to paths in LightBurn or Inkscape before cutting.</p>
+        <div class="status" id="status" role="status"></div>
+      </div>
+    </div>
+
+    <form id="form" onsubmit="return false">
+      <fieldset>
+        <legend>Details</legend>
+        <label class="f"><span>Name</span><input type="text" id="name" value="Alex Rivera" maxlength="40" autocomplete="off"></label>
+        <label class="f"><span>Title</span><input type="text" id="title1" value="CAD/CAM Contractor" maxlength="48" autocomplete="off"></label>
+        <label class="f"><span>Company or department</span><input type="text" id="title2" value="Rivera Fabrication" maxlength="48" autocomplete="off"></label>
+        <div class="row">
+          <label class="f"><span>Label</span><input type="text" id="phoneLabel" value="cell" maxlength="8" autocomplete="off"></label>
+          <label class="f"><span>Phone</span><input type="tel" id="phone" value="305.555.0142" maxlength="24" autocomplete="off"></label>
+        </div>
+        <label class="f"><span>Email</span><input type="email" id="email" value="alex@riverafab.com" maxlength="48" autocomplete="off"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Logo</legend>
+        <p class="hint">Dark shapes on a light background work best.</p>
+        <label class="file">
+          <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+          <span><strong id="fileName">Upload a logo</strong><small>PNG, JPG or WebP</small></span>
+        </label>
+        <div id="logoTools" hidden>
+          <label class="f" style="margin-top:12px"><span>Threshold: <b id="thVal">128</b></span><input type="range" id="threshold" min="20" max="235" value="128"></label>
+          <label class="check"><input type="checkbox" id="invertLogo"> Engrave the light parts instead</label>
+          <button type="button" class="linkbtn" id="removeLogo">Remove logo</button>
+        </div>
+        <div id="logoTextWrap">
+          <label class="f" style="margin-top:12px"><span>No logo? Use lettering instead</span><input type="text" id="logoText" value="RF" maxlength="6" autocomplete="off"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>QR code</legend>
+        <div class="seg" role="radiogroup" aria-label="QR code content">
+          <label><input type="radio" name="qrMode" value="link" checked> Link</label>
+          <label><input type="radio" name="qrMode" value="vcard"> My contact</label>
+          <label><input type="radio" name="qrMode" value="none"> None</label>
+        </div>
+        <label class="f" id="qrUrlWrap" style="margin-top:12px"><span>Link</span><input type="url" id="qrUrl" value="https://riverafab.com" maxlength="200" autocomplete="off"></label>
+        <label class="check" id="invertQrWrap"><input type="checkbox" id="invertQr"> Engrave the QR background instead of the code</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Shape</legend>
+        <label class="check"><input type="checkbox" id="round" checked> Rounded corners</label>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+const W=88.9,H=50.8;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let logoImg=null,logo=null,fits={};
+
+// Threshold the image and trace pixel runs into one vector path
+function vectorize(img,threshold,invert){
+  const s=Math.min(420/img.width,200/img.height,1);
+  const w=Math.max(1,Math.round(img.width*s)),h=Math.max(1,Math.round(img.height*s));
+  const c=document.createElement("canvas");c.width=w;c.height=h;
+  const x=c.getContext("2d");x.drawImage(img,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data;
+  let p="",minX=w,minY=h,maxX=0,maxY=0;
+  for(let y=0;y<h;y++){let run=-1;
+    for(let i=0;i<=w;i++){let dark=false;
+      if(i<w){const k=(y*w+i)*4,a=d[k+3]/255;
+        const lum=.299*d[k]+.587*d[k+1]+.114*d[k+2],l=255-(255-lum)*a;
+        dark=invert?(a>.5&&l>=threshold):(l<threshold);}
+      if(dark&&run<0)run=i;
+      if(!dark&&run>=0){p+=`M${run} ${y}h${i-run}v1h${run-i}z`;
+        minX=Math.min(minX,run);maxX=Math.max(maxX,i);minY=Math.min(minY,y);maxY=Math.max(maxY,y+1);run=-1;}
+    }}
+  if(!p)return null;
+  return {d:p,x:minX,y:minY,w:maxX-minX,h:maxY-minY};
+}
+
+// QR as one path in module units; optional 1-module quiet zone fill when inverted
+function makeQR(text,invert){
+  if(typeof qrcode==="undefined")return {error:true};
+  if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs["UTF-8"])qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];
+  let q;try{q=qrcode(0,"M");q.addData(text);q.make();}catch(e){return {error:true};}
+  const n=q.getModuleCount();
+  let p=invert?`M-1 -1h${n+2}v${n+2}h${-(n+2)}z`:"";
+  for(let r=0;r<n;r++){let run=-1;
+    for(let c=0;c<=n;c++){const dk=c<n&&q.isDark(r,c);
+      if(dk&&run<0)run=c;
+      if(!dk&&run>=0){p+=`M${run} ${r}h${c-run}v1h${run-c}z`;run=-1;}}}
+  return {d:p,n};
+}
+
+const val=id=>$(id).value.trim();
+function qrText(){
+  const mode=document.querySelector("input[name=qrMode]:checked").value;
+  if(mode==="none")return "";
+  if(mode==="link")return val("qrUrl");
+  const L=["BEGIN:VCARD","VERSION:3.0",`FN:${val("name")}`];
+  if(val("title1"))L.push(`TITLE:${val("title1")}`);
+  if(val("title2"))L.push(`ORG:${val("title2")}`);
+  if(val("phone"))L.push(`TEL:${val("phone")}`);
+  if(val("email"))L.push(`EMAIL:${val("email")}`);
+  L.push("END:VCARD");return L.join("\n");
+}
+
+const fitAttr=id=>fits[id]?` textLength="${fits[id]}" lengthAdjust="spacingAndGlyphs"`:"";
+
+function buildSVG(forExport){
+  const r=$("round").checked?3:0;
+  const E=forExport?"#000000":"#111418";
+  const F1="Barlow, Arial, sans-serif",F2="'Barlow Semi Condensed', 'Arial Narrow', sans-serif";
+  const out=[],g=[];
+  const txt=(id,x,y,size,weight,fam,content,max)=>
+    `<text id="${id}" data-max="${max}" x="${x}" y="${y}" font-family="${fam}" font-size="${size}" font-weight="${weight}" fill="${E}"${forExport?fitAttr(id):""}>${content}</text>`;
+
+  if(!forExport)out.push(`<rect width="${W}" height="${H}" rx="${r}" fill="#fff"/>`);
+
+  if(val("name"))g.push(txt("tName",4,19.6,5.4,700,F1,esc(val("name").toUpperCase()),80.9));
+  g.push(`<rect x="4" y="21.3" width="80.9" height=".7" fill="${E}"/>`);
+  if(val("title1"))g.push(txt("tT1",4,25.9,3.2,500,F2,esc(val("title1").toUpperCase()),56));
+  if(val("title2"))g.push(txt("tT2",4,29.5,3.2,500,F2,esc(val("title2").toUpperCase()),56));
+  g.push(`<rect x="4" y="31.6" width="55.5" height=".35" fill="${E}"/>`);
+  if(val("phone")){
+    const lab=val("phoneLabel")?`<tspan font-weight="700">${esc(val("phoneLabel"))}</tspan> `:"";
+    g.push(txt("tPh",4,37,2.9,500,F1,lab+esc(val("phone")),55.5));
+  }
+  if(val("email"))g.push(txt("tEm",4,41,2.9,500,F1,esc(val("email")),55.5));
+
+  const LX=60,LY=4,LW=24.9,LH=11.5;
+  if(logo){
+    const s=Math.min(LW/logo.w,LH/logo.h);
+    const tx=LX+LW-logo.w*s-logo.x*s,ty=LY+(LH-logo.h*s)/2-logo.y*s;
+    g.push(`<path transform="translate(${tx.toFixed(3)} ${ty.toFixed(3)}) scale(${s.toFixed(5)})" d="${logo.d}" fill="${E}" shape-rendering="crispEdges"/>`);
+  }else if(val("logoText")){
+    g.push(`<text id="tLogo" data-max="${LW}" x="${LX+LW}" y="${LY+LH-1}" text-anchor="end" font-family="Graduate, 'Arial Black', sans-serif" font-size="11" fill="none" stroke="${E}" stroke-width=".42" stroke-linejoin="round"${forExport?fitAttr("tLogo"):""}>${esc(val("logoText").toUpperCase())}</text>`);
+  }
+
+  let qrInfo=null;const qt=qrText();
+  if(qt){
+    const q=makeQR(qt,$("invertQr").checked);
+    if(q.error)qrInfo={error:true};
+    else{
+      const S=19.5,QX=65.4,QY=27.5,mod=S/(q.n+2);
+      qrInfo={mod};
+      g.push(`<path transform="translate(${(QX+mod).toFixed(3)} ${(QY+mod).toFixed(3)}) scale(${mod.toFixed(5)})" d="${q.d}" fill="${E}" fill-rule="evenodd" shape-rendering="crispEdges"/>`);
+    }
+  }
+
+  if(forExport){
+    out.push(`<g id="engrave">${g.join("")}</g>`);
+    out.push(`<g id="cut"><rect x="0" y="0" width="${W}" height="${H}" rx="${r}" fill="none" stroke="#FF0000" stroke-width="0.1"/></g>`);
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Black = engrave, red hairline = cut. Convert text to paths before cutting. -->\n<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">${out.join("")}</svg>`;
+  }
+  out.push(g.join(""));
+  out.push(`<rect x=".08" y=".08" width="${W-.16}" height="${H-.16}" rx="${Math.max(0,r-.08)}" fill="none" stroke="#FF3B42" stroke-width=".16" stroke-dasharray="1 .7"/>`);
+  return {body:out.join(""),qrInfo};
+}
+
+function render(){
+  const {body,qrInfo}=buildSVG(false);
+  const svg=$("card");svg.innerHTML=body;
+  fits={};
+  svg.querySelectorAll("text[data-max]").forEach(t=>{
+    const max=+t.dataset.max;let len=0;try{len=t.getComputedTextLength();}catch(e){}
+    if(len>max){fits[t.id]=max;t.setAttribute("textLength",max);t.setAttribute("lengthAdjust","spacingAndGlyphs");}
+  });
+  const msgs=[];
+  if(qrInfo&&qrInfo.error)msgs.push("That QR content couldn't be encoded. Try a shorter link.");
+  else if(qrInfo&&qrInfo.mod<0.45)msgs.push(`QR squares are ${qrInfo.mod.toFixed(2)} mm and may not scan once engraved. Use a shorter link.`);
+  $("warn").hidden=!msgs.length;$("warn").textContent=msgs.join(" ");
+  $("logoTextWrap").hidden=!!logo;
+  const none=document.querySelector("input[name=qrMode]:checked").value==="none";
+  $("invertQrWrap").hidden=none;
+}
+
+const relogo=()=>{logo=logoImg?vectorize(logoImg,+$("threshold").value,$("invertLogo").checked):null;};
+const setStatus=(t,err)=>{const s=$("status");s.textContent=t;s.className="status"+(err?" err":"");};
+
+$("form").addEventListener("input",e=>{
+  const t=e.target;
+  if(t.name==="qrMode")$("qrUrlWrap").hidden=t.value!=="link";
+  if(t.id==="threshold"){$("thVal").textContent=t.value;relogo();}
+  if(t.id==="invertLogo")relogo();
+  setStatus("");render();
+});
+$("logoFile").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;
+  const img=new Image();
+  img.onload=()=>{logoImg=img;relogo();
+    setStatus(logo?"":"No dark shapes found. Move the threshold or engrave the light parts instead.",!logo);
+    $("fileName").textContent=f.name;$("logoTools").hidden=false;render();};
+  img.onerror=()=>setStatus("That file couldn't be read as an image. Try a PNG or JPG.",true);
+  img.src=URL.createObjectURL(f);
+});
+$("removeLogo").addEventListener("click",()=>{
+  logoImg=null;logo=null;$("logoFile").value="";$("fileName").textContent="Upload a logo";$("logoTools").hidden=true;setStatus("");render();
+});
+
+$("exportBtn").addEventListener("click",()=>{
+  const slug=(val("name")||"card").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"card";
+  try{
+    const blob=new Blob([buildSVG(true)],{type:"image/svg+xml"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download=`${slug}-card.svg`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+    setStatus("Downloaded.");
+  }catch(err){setStatus("The file couldn't be created. Try again.",true);}
+});
+
+render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+})();
+</script>
+</body>
+</html>
